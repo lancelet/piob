@@ -11,5 +11,8 @@ format:
 build: format
 	cabal build
 
+test: build
+	cabal test
+
 clean:
 	cabal clean

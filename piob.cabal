@@ -32,11 +32,22 @@ executable piob
   default-language: GHC2021
 
 test-suite piob-test
-  import:           warnings
-  default-language: GHC2021
-  type:             exitcode-stdio-1.0
-  hs-source-dirs:   test
-  main-is:          Main.hs
+  build-tool-depends: tasty-discover:tasty-discover
+  import:             warnings
+  default-language:   GHC2021
+  type:               exitcode-stdio-1.0
+  hs-source-dirs:     test
+  other-modules:      Piob.Grammar.GrammarTest
+  main-is:            Main.hs
   build-depends:
-    , base  ^>=4.17.2.0
+    , abnf                  ^>=0.5
+    , base                  ^>=4.17.2.0
+    , hspec                 ^>=2.11.7
+    , megaparsec            ^>=9.6.1
+    , path                  ^>=0.9.5
+    , path-io               ^>=1.8.1
     , piob
+    , tasty                 ^>=1.5
+    , tasty-hspec           ^>=1.2.0.3
+    , text                  ^>=2.1
+    , unordered-containers  ^>=0.2.19.1

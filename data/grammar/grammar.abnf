@@ -1,0 +1,14 @@
+; #---------------------------------------#
+; # ABNF Specification of the Piob format #
+; #---------------------------------------#
+
+; Embellishment
+embellishment = "{" / 1*note / "}"
+
+; Note on the bagpipe scale:
+;   G      = low G
+;   A      = low A
+;   b -> f = regular b through f
+;   g      = high g
+;   a      = high a
+note = "G" / "A" / "b" / "c" / "d" / "e" / "f" / "g" / "a"
