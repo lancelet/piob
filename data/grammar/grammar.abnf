@@ -2,6 +2,22 @@
 ; # ABNF Specification of the Piob format #
 ; #---------------------------------------#
 
+; Dot-and-cut
+dot-cut-shorthand = dot-cut / cut-dot
+dot-cut = note-duration ">" note
+cut-dot = note-duration "<" note
+
+; Note and duration
+note-duration = note duration
+
+; Duration
+duration = *int *("/" int)
+
+; Integer, without leading zeros
+int = int-start *int-digit
+int-digit = "0" / int-start
+int-start = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+
 ; Embellishment
 embellishment = "{" / 1*note / "}"
 

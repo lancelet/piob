@@ -23,9 +23,9 @@ import Test.Hspec
     it,
     pending,
     runIO,
-    shouldBe,
+    shouldBe, example,
   )
-import Text.ABNF (Rule (Rule), parseDocument)
+import Text.ABNF (Rule (Rule), canonicalizeRules, parseDocument)
 import Text.ABNF.ABNF.Parser (parseABNF)
 import Text.Megaparsec (errorBundlePretty)
 
@@ -66,9 +66,19 @@ parseCheck rule example =
     Left err -> Just . Text.pack $ err
     Right _ -> Nothing
 
-parseCheckExamples :: Rule -> [Text] -> Expectation
-parseCheckExamples rule examples =
-  mapM (parseCheck rule) examples `shouldBe` Nothing
+parseCheckExamples ::
+  [Rule] ->
+  Text ->
+  [Text] ->
+  Spec
+parseCheckExamples rules rule_name examples =
+  it (Text.unpack rule_name) $ do
+    case canonicalizeRules rule_name rules of
+      Nothing ->
+        expectationFailure $
+          "Could not canonicalize rule: "
+            <> Text.unpack rule_name
+      Just rule -> mapM (parseCheck rule) examples `shouldBe` Nothing
 
 spec_rules :: Spec
 spec_rules = do
@@ -80,29 +90,82 @@ spec_rules = do
     let rules :: HashMap Text Rule
         rules = HashMap.fromList $ ruleNameAndRule <$> rule_list
 
-        rule_note :: Rule
-        rule_note = rules HashMap.! "note"
+        chk :: Text -> [Text] -> Spec
+        chk = parseCheckExamples rule_list
 
-        rule_embellishment :: Rule
-        rule_embellishment = rules HashMap.! "embellishment"
+    chk "note" examplesNote
+    chk "embellishment" examplesEmbellishment
+    chk "int-start" examplesIntStart
+    chk "int-digit" examplesIntDigit
+    chk "int" examplesIntValue
+    chk "duration" examplesDuration
+    chk "note-duration" examplesNoteDuration
+    chk "dot-cut-shorthand" examplesDotCutShorthand
 
-    it "note: individual notes" $ do
-      parseCheckExamples
-        rule_note
-        [ "G",
-          "A",
-          "b",
-          "c",
-          "d",
-          "e",
-          "f",
-          "g",
-          "a"
-        ]
+examplesDotCutShorthand :: [Text]
+examplesDotCutShorthand =
+  [
+    "e4>f",
+    "g8<e"
+  ]
 
-    it "embellishments: grace notes" $ do
-      parseCheckExamples
-        rule_embellishment
-        [ "{g}",
-          "{gdc}"
-        ]
+examplesNoteDuration :: [Text]
+examplesNoteDuration =
+  [
+    "e3/2",
+    "f/2",
+    "A4"
+  ]
+
+examplesDuration :: [Text]
+examplesDuration =
+  [
+    "1",
+    "4",
+    "/2",
+    "3/2",
+    "1/16",
+    "/16"
+  ]
+
+examplesIntValue :: [Text]
+examplesIntValue =
+  [ "1",
+    "10",
+    "16"
+  ]
+
+examplesIntDigit :: [Text]
+examplesIntDigit = "0" : examplesIntStart
+
+examplesIntStart :: [Text]
+examplesIntStart =
+  [ "1",
+    "2",
+    "3",
+    "4",
+    "5",
+    "6",
+    "7",
+    "8",
+    "9"
+  ]
+
+examplesNote :: [Text]
+examplesNote =
+  [ "G",
+    "A",
+    "b",
+    "c",
+    "d",
+    "e",
+    "f",
+    "g",
+    "a"
+  ]
+
+examplesEmbellishment :: [Text]
+examplesEmbellishment =
+  [ "{g}",
+    "{gdc}"
+  ]
