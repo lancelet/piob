@@ -41,6 +41,7 @@ test-suite piob-test
   main-is:            Main.hs
   build-depends:
     , abnf                  ^>=0.5
+    , attoparsec            ^>=0.14.4
     , base                  ^>=4.17.2.0
     , hspec                 ^>=2.11.7
     , megaparsec            ^>=9.6.1

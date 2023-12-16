@@ -6,7 +6,8 @@ format:
 	cabal-fmt --inplace piob.cabal
 
 	@echo "Formatting Haskell source files..."
-	find . -name '*.hs' -exec ormolu --mode inplace {} \;
+	find . -name 'src/*.hs' -exec ormolu --mode inplace {} \;
+	find . -name 'test/*.hs' -exec ormolu --mode inplace {} \;
 
 build: format
 	cabal build

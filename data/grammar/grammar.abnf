@@ -1,30 +1,70 @@
 ; #---------------------------------------#
 ; # ABNF Specification of the Piob format #
 ; #---------------------------------------#
+;
+; Should be a strict subset of:
+;   https://abcnotation.com/wiki/abc:standard:v2.1
+;
+; See test/Piob/Grammar/GrammarTest.hs for a tests that tries to parse various
+; example inputs with the rules of this grammar. If you find any discrepancies
+; please add them as tests there.
+
+; Beamed notes
+beam = 1*(*tuplet-timing note-duration)
+
+; Bar symbols
+bar = ( bar-th
+      / bar-ht
+      / bar-tt
+      / rep-start
+      / rep-end
+      / rep-rep
+      / bar-line
+      ) *ws
+bar-th    = "|]"
+bar-ht    = "[|"
+bar-tt    = "||"
+rep-start = "|:"
+rep-end   = ":|"
+rep-rep   = "::"
+bar-line  = "|"
+
+; Tuplets (duplets, triplets, quadruplets)
+; eg:
+;   (3 (3: (3:: (3:2 (3::2 (3:2:3
+;
+; Whitespace is permitted after the tuplet specification, but ignored.
+tuplet-timing = "(" int-two-up *":" *int-one-up *":" *int-two-up *ws
 
 ; Dot-and-cut
+;
+; This should always occur under the same beam, so no spaces are permitted.
 dot-cut-shorthand = dot-cut / cut-dot
 dot-cut = note-duration ">" note
 cut-dot = note-duration "<" note
 
 ; Note and duration
-note-duration = note duration
+;
+; There is not space permitted between a note and its duration.
+note-duration = note *duration
 
 ; Duration
-duration = *int *("/" int)
+duration = dur-frac-tail / dur-frac-opt
+dur-frac-tail = "/" int
+dur-frac-opt = int *(dur-frac-tail)
 
 ; Integer, without leading zeros
-int = int-start *int-digit
-int-digit = "0" / int-start
-int-start = "1" / "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
+int = int-one-up *int-zero-up
+int-zero-up = "0" / int-one-up
+int-one-up = "1" / int-two-up
+int-two-up = "2" / "3" / "4" / "5" / "6" / "7" / "8" / "9"
 
 ; Embellishment
-embellishment = "{" / 1*note / "}"
+embellishment = "{" 1*note "}"
 
 ; Note on the bagpipe scale:
-;   G      = low G
-;   A      = low A
-;   b -> f = regular b through f
-;   g      = high g
-;   a      = high a
-note = "G" / "A" / "b" / "c" / "d" / "e" / "f" / "g" / "a"
+; These are ordered from low G to high a
+note = "G" / "A" / "B" / "c" / "d" / "e" / "f" / "g" / "a"
+
+; Whitespace.
+ws = " " / "\t" / "\n" / "\r"
